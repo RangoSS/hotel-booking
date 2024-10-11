@@ -20,7 +20,7 @@ const Login = () => {
         const user = userCredential.user;//this come from firebase
         dispatch({ type: 'LOGIN', payload: user })
         console.log(user);
-        navigate('/');
+        navigate('/home');
       })
       .catch((error) => {
         setError(true);

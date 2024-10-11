@@ -13,10 +13,10 @@ import Register from "./pages/login/Register";
 import Hotel from "./pages/Hotel/Hotel";
 import Add_hotel from "./pages/Hotel/Add_hotel";
 
+import Landing_page from "./pages/home/Landing_page";
+
 function App() {
   const { darkMode } = useContext(DarkModeContext);
-
-  // Get currentUser from AuthContext
   const { currentUser } = useContext(AuthContext);
   
   // Protect routes for authenticated users
@@ -28,33 +28,34 @@ function App() {
     <div className={darkMode ? "app dark" : "app"}>
       <BrowserRouter>
         <Routes>
-          <Route path="/">
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route index element={<RequireAuth><Home /></RequireAuth>} />
+          {/* Set the landing page as the default route */}
+          <Route path="/" element={<Landing_page />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-            <Route path="users">
-              <Route index element={<RequireAuth><List /></RequireAuth>} />
-              <Route path=":userId" element={<RequireAuth><Single /></RequireAuth>} />
-              <Route
-                path="new"
-                element={<RequireAuth><New inputs={userInputs} title="Add New User" /></RequireAuth>}
-              />
-            </Route>
-
-            <Route path="products">
-              <Route index element={<RequireAuth><List /></RequireAuth>} />
-              <Route path=":productId" element={<RequireAuth><Single /></RequireAuth>} />
-              <Route
-                path="new"
-                element={<RequireAuth><New inputs={productInputs} title="Add New Product" /></RequireAuth>}
-              />
-            </Route>
-
-            {/* Move Hotel route outside of products */}
-             <Route path="hotel" element={<RequireAuth><Hotel /></RequireAuth>} />
-             <Route path="addhotel" element={<RequireAuth><Add_hotel /></RequireAuth>} />
+          {/* Protected routes - users need to be authenticated to access these */}
+          <Route path="/home" element={<RequireAuth><Home /></RequireAuth>} />
+          <Route path="/users">
+            <Route index element={<RequireAuth><List /></RequireAuth>} />
+            <Route path=":userId" element={<RequireAuth><Single /></RequireAuth>} />
+            <Route
+              path="new"
+              element={<RequireAuth><New inputs={userInputs} title="Add New User" /></RequireAuth>}
+            />
           </Route>
+
+          <Route path="/products">
+            <Route index element={<RequireAuth><List /></RequireAuth>} />
+            <Route path=":productId" element={<RequireAuth><Single /></RequireAuth>} />
+            <Route
+              path="new"
+              element={<RequireAuth><New inputs={productInputs} title="Add New Product" /></RequireAuth>}
+            />
+          </Route>
+
+          {/* Hotel routes */}
+          <Route path="/hotel" element={<RequireAuth><Hotel /></RequireAuth>} />
+          <Route path="/addhotel" element={<RequireAuth><Add_hotel /></RequireAuth>} />
         </Routes>
       </BrowserRouter>
     </div>
