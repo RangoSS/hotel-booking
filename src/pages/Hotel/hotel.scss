@@ -1,0 +1,26 @@
+.container{
+  display: flex;
+  flex-direction: row;
+}
+.side{
+  flex: flex;
+}
+.content{
+  flex:8;
+  padding: 20px;
+}
+.add-new{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.add-new a{
+  display: inline-block;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #28a745; /* Bootstrap success green */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
