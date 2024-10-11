@@ -58,6 +58,27 @@
               border: none;
               border-bottom: 1px solid gray;
             }
+
+            // Styles for select dropdown
+            select {
+              width: 100%;
+              padding: 5px;
+              border: none;
+              border-bottom: 1px solid gray;
+              background-color: white; // Background color
+              color: black; // Text color
+              appearance: none; // Remove default arrow
+              cursor: pointer; // Pointer cursor on hover
+
+              // Optional: Add a custom arrow using pseudo-element
+              &::after {
+                content: '▼'; // Add a custom arrow
+                position: absolute;
+                right: 10px;
+                top: calc(50% - 5px); // Center it vertically
+                pointer-events: none; // Prevent mouse events
+              }
+            }
           }
 
           button {
@@ -70,10 +91,9 @@
             cursor: pointer;
             margin-top: 10px;
 
-            &:disabled{
-              background-color:rgba(0, 128, 128, 0.058) ;
-              cursor:not-allowed;
-              
+            &:disabled {
+              background-color: rgba(0, 128, 128, 0.058);
+              cursor: not-allowed;
             }
           }
         }
