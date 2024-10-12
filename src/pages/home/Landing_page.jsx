@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { getFirestore, collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { Modal, Button } from 'react-bootstrap';
-import { FacebookShareButton, WhatsappShareButton, FacebookIcon, WhatsappIcon } from 'react-share'; // Importing share buttons
-import Rating from 'react-rating-stars-component'; // Importing Rating component
+import { Modal, Button, Form } from 'react-bootstrap';
+import { FacebookShareButton, WhatsappShareButton, FacebookIcon, WhatsappIcon } from 'react-share';
+import Rating from 'react-rating-stars-component';
 import './landing_page.scss';
 import Navbar from "../../components/navbar/Navbar";
 
 const LandingPage = () => {
   const [hotels, setHotels] = useState([]);
   const [selectedHotel, setSelectedHotel] = useState(null);
-  const [userRating, setUserRating] = useState(0); // Track user rating
+  const [userRating, setUserRating] = useState(0);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [checkInDate, setCheckInDate] = useState('');
+  const [checkOutDate, setCheckOutDate] = useState('');
+  const [numOfRooms, setNumOfRooms] = useState(1);
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [phone, setPhone] = useState('');
+  const [totalPrice, setTotalPrice] = useState(0);
   const db = getFirestore();
   const navigate = useNavigate();
 
@@ -26,34 +35,69 @@ const LandingPage = () => {
   }, [db]);
 
   // Function to handle booking
-  const handleBook = (hotelId) => {
-    const currentUserId = localStorage.getItem("userId");
-    if (currentUserId) {
-      navigate(`/booking/${hotelId}`, { state: { userId: currentUserId } });
-    } else {
-      console.error("User is not logged in.");
-      navigate("/login");
-    }
-  };
-
-  // Function to handle view (show modal)
-  const handleView = (hotel) => {
+  const handleBook = (hotel) => {
     setSelectedHotel(hotel);
-    setUserRating(hotel.rating || 0); // Set current rating
+    setShowBookingModal(true);
   };
 
-  // Function to close the modal
-  const handleClose = () => {
+  // Function to close the booking modal
+  const handleCloseBookingModal = () => {
+    setShowBookingModal(false);
+    // Resetting form fields
+    setCheckInDate('');
+    setCheckOutDate('');
+    setNumOfRooms(1);
+    setName('');
+    setSurname('');
+    setPhone('');
+    setTotalPrice(0);
+  };
+
+  // Function to close the hotel details modal
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false);
     setSelectedHotel(null);
   };
 
-  // Function to handle rating submission
-  const handleRating = async (newRating) => {
-    if (selectedHotel) {
-      const hotelRef = doc(db, "hotels", selectedHotel.id);
-      await updateDoc(hotelRef, { rating: newRating });
-      setUserRating(newRating);
+  // Function to calculate the total price
+  const calculateTotalPrice = () => {
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    if (checkIn && checkOut) {
+      const timeDiff = checkOut - checkIn; // difference in milliseconds
+      const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)); // convert to days
+      if (selectedHotel) {
+        const price = selectedHotel.pricePerNight || 0;
+        setTotalPrice(price * dayDiff * numOfRooms);
+      }
     }
+  };
+
+  // Function to handle booking submission
+  const handleBookingSubmit = async () => {
+    const currentUserId = localStorage.getItem("user");
+    if (!currentUserId) {
+      alert("You need to log in to book a hotel.");
+      navigate("/login");
+      return;
+    }
+
+    const bookingData = {
+      userId: currentUserId,
+      hotelId: selectedHotel.id,
+      checkInDate,
+      checkOutDate,
+      numOfRooms,
+      totalPrice,
+      name,
+      surname,
+      phone,
+    };
+
+    // Save to Firestore
+    await setDoc(doc(db, "bookings", `${currentUserId}_${selectedHotel.id}`), bookingData);
+    alert("Successfully booked! You can add more.");
+    handleCloseBookingModal(); // Close modal
   };
 
   return (
@@ -66,33 +110,69 @@ const LandingPage = () => {
             <img src={hotel.imageUrls[0]} alt="Hotel" className="hotel-image" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
             <div className="hotel-details">
               <h2>{hotel.name}</h2>
-              <p>
-                <strong>Location:</strong> {hotel.address}, {hotel.city}
-              </p>
-              <p>
-                <strong>Price Per Night:</strong> ${hotel.pricePerNight || 'N/A'}
-              </p>
-              <p>
-                <strong>Price Per Day:</strong> ${hotel.pricePerDay || 'N/A'}
-              </p>
-              <p>
-                <strong>Type:</strong> {hotel.hotelType || 'N/A'}
-              </p>
+              <p><strong>Location:</strong> {hotel.address}, {hotel.city}</p>
+              <p><strong>Price Per Night:</strong> ${hotel.pricePerNight || 'N/A'}</p>
+              <p><strong>Price Per Day:</strong> ${hotel.pricePerDay || 'N/A'}</p>
+              <p><strong>Type:</strong> {hotel.hotelType || 'N/A'}</p>
               <div className="button-container">
-                <button className="button primary" onClick={() => handleBook(hotel.id)}>
+                <Button className="button primary" onClick={() => { setSelectedHotel(hotel); setShowDetailsModal(true); }}>
+                  View Details
+                </Button>
+                <Button className="button primary" onClick={() => handleBook(hotel)}>
                   Book Now
-                </button>
-                <button className="button secondary" onClick={() => handleView(hotel)}>
-                  View
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
+      {/* Booking Modal */}
+      <Modal show={showBookingModal} onHide={handleCloseBookingModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Book {selectedHotel?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="checkInDate">
+              <Form.Label>Check-in Date</Form.Label>
+              <Form.Control type="date" value={checkInDate} onChange={(e) => { setCheckInDate(e.target.value); calculateTotalPrice(); }} />
+            </Form.Group>
+            <Form.Group controlId="checkOutDate">
+              <Form.Label>Check-out Date</Form.Label>
+              <Form.Control type="date" value={checkOutDate} onChange={(e) => { setCheckOutDate(e.target.value); calculateTotalPrice(); }} />
+            </Form.Group>
+            <Form.Group controlId="numOfRooms">
+              <Form.Label>Number of Rooms</Form.Label>
+              <Form.Control type="number" min="1" value={numOfRooms} onChange={(e) => { setNumOfRooms(e.target.value); calculateTotalPrice(); }} />
+            </Form.Group>
+            <Form.Group controlId="name">
+              <Form.Label>Name</Form.Label>
+              <Form.Control type="text" value={name} onChange={(e) => setName(e.target.value)} />
+            </Form.Group>
+            <Form.Group controlId="surname">
+              <Form.Label>Surname</Form.Label>
+              <Form.Control type="text" value={surname} onChange={(e) => setSurname(e.target.value)} />
+            </Form.Group>
+            <Form.Group controlId="phone">
+              <Form.Label>Phone</Form.Label>
+              <Form.Control type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </Form.Group>
+            <h5>Total Price: ${totalPrice}</h5>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseBookingModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleBookingSubmit}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       {/* Modal for showing selected hotel details */}
-      <Modal show={selectedHotel !== null} onHide={handleClose}>
+      <Modal show={showDetailsModal} onHide={handleCloseDetailsModal}>
         <Modal.Header closeButton>
           <Modal.Title>{selectedHotel?.name}</Modal.Title>
         </Modal.Header>
@@ -112,41 +192,27 @@ const LandingPage = () => {
             ))}
           </div>
 
-          {/* Rating Component */}
-          <h5>Rate this hotel</h5>
-          <Rating
-            count={5}
-            value={userRating}
-            size={30}
-            activeColor="#ffd700"
-            onChange={handleRating}
-          />
-
-          {/* Share Buttons */}
-          <h5>Share this hotel</h5>
           <div className="share-buttons">
-            <FacebookShareButton
-              url={window.location.href} // Use the current page URL for sharing
-              quote={`Check out this amazing hotel: ${selectedHotel?.name}!`}
-              hashtag="#HotelBooking"
-            >
-              <FacebookIcon size={40} round />
+            <FacebookShareButton url={`http://your-website.com/hotels/${selectedHotel?.id}`} quote={selectedHotel?.name}>
+              <FacebookIcon size={32} round={true} />
             </FacebookShareButton>
-
-            <WhatsappShareButton
-              url={window.location.href}
-              title={`Check out this amazing hotel: ${selectedHotel?.name}!`}
-              separator=" - "
-            >
-              <WhatsappIcon size={40} round />
+            <WhatsappShareButton url={`http://your-website.com/hotels/${selectedHotel?.id}`} title={selectedHotel?.name}>
+              <WhatsappIcon size={32} round={true} />
             </WhatsappShareButton>
           </div>
+
+          <Rating
+            count={5}
+            onChange={(rating) => setUserRating(rating)}
+            size={24}
+            activeColor="#ffd700"
+          />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={handleCloseDetailsModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={() => handleBook(selectedHotel.id)}>
+          <Button variant="primary" onClick={() => handleBook(selectedHotel)}>
             Book Now
           </Button>
         </Modal.Footer>
