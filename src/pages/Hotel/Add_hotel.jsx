@@ -12,6 +12,7 @@ const AddHotel = () => {
     const [address, setAddress] = useState('');
     const [hotelType, setHotelType] = useState('beachfront'); // Default hotel type
     const [city, setCity] = useState('');
+    const [ratings, setRatings] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -56,6 +57,7 @@ const AddHotel = () => {
                 address,
                 hotelType,
                 city,
+                ratings,
                 imageUrls: uploadedImageUrls, // Save image URLs to Firestore
                 createdAt: serverTimestamp(),
             });
@@ -67,6 +69,7 @@ const AddHotel = () => {
             setAddress('');
             setHotelType('beachfront');
             setCity('');
+            setRatings('');
             setImageFiles([]);
             setImagePreviews([]);
             setError('');
@@ -111,7 +114,9 @@ const AddHotel = () => {
                 <div className="form-group">
                     <input type="text" className="form-control" placeholder="City or Area" value={city} onChange={(e) => setCity(e.target.value)} required />
                 </div>
-
+                <div className="form-group">
+                    <input type="text" className="form-control" placeholder="ratings" value={ratings} onChange={(e) => setRatings(e.target.value)} required />
+                </div>
                 {/* Image upload */}
                 <div className="form-group">
                     <p>Upload hotel images (Max 50)</p>

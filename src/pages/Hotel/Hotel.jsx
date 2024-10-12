@@ -81,81 +81,91 @@ const Hotel = () => {
     };
 
     return (
-        <div className="container">
 
-            <div className="sidebar">
-                <Sidebar />
+        <div>
+            <div className="con">
+
+                <a href='/addHotel' className='button' >Add Hotel</a>
             </div>
-            <div className="hotel-gallery">
-                {hotels.map((hotel) => (
-                    <div key={hotel.id} className="card">
-                        {editingHotelId === hotel.id ? (
-                            // Display form for updating hotel details
-                            <form onSubmit={handleUpdate}>
-                                <input
-                                    type="text"
-                                    placeholder="Address"
-                                    value={editData.address || hotel.address}
-                                    onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="City"
-                                    value={editData.city || hotel.city}
-                                    onChange={(e) => setEditData({ ...editData, city: e.target.value })}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Hotel Type"
-                                    value={editData.hotelType || hotel.hotelType}
-                                    onChange={(e) => setEditData({ ...editData, hotelType: e.target.value })}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Phone"
-                                    value={editData.phone || hotel.phone}
-                                    onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Price per Day"
-                                    value={editData.pricePerDay || hotel.pricePerDay}
-                                    onChange={(e) => setEditData({ ...editData, pricePerDay: e.target.value })}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Price per Night"
-                                    value={editData.pricePerNight || hotel.pricePerNight}
-                                    onChange={(e) => setEditData({ ...editData, pricePerNight: e.target.value })}
-                                />
-                                <input type="file" onChange={handleImageChange} /> {/* File input for new image */}
-                                <button type="submit">Update Hotel</button>
-                            </form>
-                        ) : (
-                            // Display hotel details on a card
-                            <>
-                                {hotel.imageUrls && hotel.imageUrls.length > 0 ? (
-                                    <img src={hotel.imageUrls[0]} className="card-img-top" alt="Hotel" />
-                                ) : (
-                                    <p>No image available</p> // Display message if no image
-                                )}
-                                <div className="card-body">
-                                    <h5 className="card-title">{hotel.city}</h5>
-                                    <p className="card-text"><strong>Address:</strong> {hotel.address}</p>
-                                    <p className="card-text"><strong>Hotel Type:</strong> {hotel.hotelType}</p>
-                                    <p className="card-text"><strong>Phone:</strong> {hotel.phone}</p>
-                                    <p className="card-text"><strong>Price per Day:</strong> {hotel.pricePerDay}</p>
-                                    <p className="card-text"><strong>Price per Night:</strong> {hotel.pricePerNight}</p>
-                                    <button className="btn btn-primary" onClick={() => {
-                                        setEditingHotelId(hotel.id);
-                                        setEditData(hotel); // Prepopulate form with current hotel data
-                                    }}>Update</button>
-                                    <button className="btn btn-danger" onClick={() => handleDelete(hotel.id, hotel.imageUrls)}>Delete</button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                ))}
+
+            <div className="container">
+
+                <div className="sidebar">
+                    <Sidebar />
+                </div>
+
+                <div className="hotel-gallery">
+
+                    {hotels.map((hotel) => (
+                        <div key={hotel.id} className="card">
+                            {editingHotelId === hotel.id ? (
+                                // Display form for updating hotel details
+                                <form onSubmit={handleUpdate}>
+                                    <input
+                                        type="text"
+                                        placeholder="Address"
+                                        value={editData.address || hotel.address}
+                                        onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="City"
+                                        value={editData.city || hotel.city}
+                                        onChange={(e) => setEditData({ ...editData, city: e.target.value })}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Hotel Type"
+                                        value={editData.hotelType || hotel.hotelType}
+                                        onChange={(e) => setEditData({ ...editData, hotelType: e.target.value })}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Phone"
+                                        value={editData.phone || hotel.phone}
+                                        onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Price per Day"
+                                        value={editData.pricePerDay || hotel.pricePerDay}
+                                        onChange={(e) => setEditData({ ...editData, pricePerDay: e.target.value })}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Price per Night"
+                                        value={editData.pricePerNight || hotel.pricePerNight}
+                                        onChange={(e) => setEditData({ ...editData, pricePerNight: e.target.value })}
+                                    />
+                                    <input type="file" onChange={handleImageChange} /> {/* File input for new image */}
+                                    <button type="submit">Update Hotel</button>
+                                </form>
+                            ) : (
+                                // Display hotel details on a card
+                                <>
+                                    {hotel.imageUrls && hotel.imageUrls.length > 0 ? (
+                                        <img src={hotel.imageUrls[0]} className="card-img-top" alt="Hotel" />
+                                    ) : (
+                                        <p>No image available</p> // Display message if no image
+                                    )}
+                                    <div className="card-body">
+                                        <h5 className="card-title">{hotel.city}</h5>
+                                        <p className="card-text"><strong>Address:</strong> {hotel.address}</p>
+                                        <p className="card-text"><strong>Hotel Type:</strong> {hotel.hotelType}</p>
+                                        <p className="card-text"><strong>Phone:</strong> {hotel.phone}</p>
+                                        <p className="card-text"><strong>Price per Day:</strong> {hotel.pricePerDay}</p>
+                                        <p className="card-text"><strong>Price per Night:</strong> {hotel.pricePerNight}</p>
+                                        <button className="btn btn-primary" onClick={() => {
+                                            setEditingHotelId(hotel.id);
+                                            setEditData(hotel); // Prepopulate form with current hotel data
+                                        }}>Update</button>
+                                        <button className="btn btn-danger" onClick={() => handleDelete(hotel.id, hotel.imageUrls)}>Delete</button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
